@@ -37,19 +37,24 @@ async def news_command(update: Update, context: CallbackContext) -> None:
     news = get_news()
     await update.message.reply_text(news)
 
-# Запуск бота
-def main():
-
-    PORT = int(os.environ.get("PORT", 8443))
+# Создаём бота
+app = Application.builder().token(TOKEN).build()
 
 async def start_webhook():
     await app.bot.set_webhook(f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}/webhook/{TOKEN}")
 
-app.run_webhook(
-    listen="0.0.0.0",
-    port=PORT,
-    url_path=f"webhook/{TOKEN}"
-)
+# Запуск бота
+def main():
+    PORT = int(os.environ.get("PORT", 8443))
+
+    # Запускаем webhook
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        url_path=f"webhook/{TOKEN}"
+    )
 
 if __name__ == "__main__":
+    import asyncio
+    asyncio.run(start_webhook())  # Устанавливаем webhook перед запуском
     main()
