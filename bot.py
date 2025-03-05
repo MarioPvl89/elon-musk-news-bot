@@ -11,6 +11,9 @@ TOKEN = "7924106666:AAGd-HK2cfXRkNmLtrXVrV1j80HuPpAfSAk"
 # API-ключ для NewsAPI
 API_KEY = "0d8117b87d1949f9808c47112650cfab"
 
+# URL вебхука
+WEBHOOK_URL = "https://elon-musk-news-bot.onrender.com/webhook/"
+
 # Логирование
 logging.basicConfig(level=logging.INFO)
 
@@ -45,17 +48,18 @@ app = Application.builder().token(TOKEN).build()
 async def start(update: Update, context: CallbackContext):
     await update.message.reply_text("Привет! Я бот новостей про Илона Маска.")
 
-# Добавляем обработчик команды /start
+# Добавляем обработчики команд
 app.add_handler(CommandHandler("start", start))
-
-# Функция для установки webhook
-async def start_webhook():
-    await app.bot.set_webhook(f"https://elon-musk-news-bot.onrender.com/webhook/7924106666:AAGd-HK2cfXRkNmLtrXVrV1j80HuPpAfSAk/")
+app.add_handler(CommandHandler("news", news_command))
 
 PORT = int(os.environ.get("PORT", 8443))  # Если PORT не задан, берём 8443 по умолчанию
 
 # Запуск бота через webhook
 async def main():
+    # Устанавливаем вебхук перед запуском бота
+    await app.bot.set_webhook(f"{WEBHOOK_URL}{TOKEN}")
+
+    # Запускаем веб-сервер для приёма обновлений
     await app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
@@ -63,9 +67,4 @@ async def main():
     )
 
 if __name__ == "__main__":
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        asyncio.run(main())
-    else:
-        asyncio.create_task(main())
+    asyncio.run(main())
