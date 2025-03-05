@@ -66,4 +66,5 @@ def main():
     )
 
 if __name__ == "__main__":
-    asyncio.run(main())  # Запускаем основной event loop
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())  # Запускаем event loop
