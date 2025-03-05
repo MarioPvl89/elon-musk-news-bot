@@ -1,4 +1,5 @@
 import os
+import asyncio
 import requests
 import logging
 from telegram import Update
@@ -40,6 +41,14 @@ async def news_command(update: Update, context: CallbackContext) -> None:
 # Создаём бота
 app = Application.builder().token(TOKEN).build()
 
+# Функция обработки команды /start
+async def start(update: Update, context: CallbackContext):
+    await update.message.reply_text("Привет! Я бот новостей про Илона Маска.")
+
+# Добавляем обработчик команды /start
+app.add_handler(CommandHandler("start", start))
+
+# Функция для установки webhook
 async def start_webhook():
     await app.bot.set_webhook(f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}/webhook/{TOKEN}")
 
@@ -47,14 +56,14 @@ async def start_webhook():
 def main():
     PORT = int(os.environ.get("PORT", 8443))
 
+    await start_webhook()  # Устанавливаем webhook
+    
     # Запускаем webhook
-    app.run_webhook(
+    await app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
         url_path=f"webhook/{TOKEN}"
     )
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(start_webhook())  # Устанавливаем webhook перед запуском
-    main()
+    asyncio.run(main())  # Запускаем основной event loop
