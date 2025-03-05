@@ -1,41 +1,60 @@
-import os
 import logging
 import asyncio
+import os
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
+import nest_asyncio
 
-# Настройка логирования
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+# Применяем патч для предотвращения ошибки "RuntimeError: This event loop is already running"
+nest_asyncio.apply()
 
-# Получаем токен из переменных окружения
+# Логирование
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+logger = logging.getLogger(__name__)
+
+# Получаем токен бота из переменной окружения
 TOKEN = os.getenv("TELEGRAM_TOKEN")
-PORT = int(os.getenv("PORT", 8443))
+WEBHOOK_URL = f"https://elon-musk-news-bot.onrender.com/{TOKEN}/"
 
-# Создаем объект приложения
-app = Application.builder().token(TOKEN).build()
+# Проверка наличия токена
+if not TOKEN:
+    logger.error("❌ Токен бота не найден! Убедитесь, что переменная окружения TELEGRAM_TOKEN установлена.")
+    exit(1)
 
-# Команда /start
+# Функция для команды /start
 async def start(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text("Привет! Я бот для новостей про Илона Маска 🚀")
+    await update.message.reply_text("Привет! Я бот новостей про Илона Маска 🚀.")
 
-# Добавляем обработчик команд
-app.add_handler(CommandHandler("start", start))
-
-# Запуск вебхука
+# Основная асинхронная функция
 async def main():
-    webhook_url = f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}/"
-    logging.info(f"✅ Webhook установлен: {webhook_url}")
-    
-    await app.bot.set_webhook(url=webhook_url)
-    
-    # Определяем event loop и запускаем вебхук
-    loop = asyncio.get_running_loop()
-    await app.run_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        url_path=TOKEN,
-        webhook_url=webhook_url
-    )
+    try:
+        # Создаем приложение Telegram бота
+        app = Application.builder().token(TOKEN).build()
 
+        # Добавляем обработчики команд
+        app.add_handler(CommandHandler("start", start))
+
+        # Устанавливаем webhook
+        await app.bot.set_webhook(WEBHOOK_URL)
+        logger.info(f"✅ Webhook установлен: {WEBHOOK_URL}")
+
+        # Запуск бота через webhook
+        await app.run_webhook(
+            listen="0.0.0.0",
+            port=8443,
+            url_path=TOKEN,
+            webhook_url=WEBHOOK_URL,
+        )
+
+    except Exception as e:
+        logger.error(f"❌ Ошибка при запуске бота: {e}", exc_info=True)
+
+# Запуск бота
 if __name__ == "__main__":
-    asyncio.run(main())  # Render поддерживает asyncio.run()
+    loop = asyncio.get_event_loop()
+    if loop.is_running():
+        asyncio.create_task(main())  # Если event loop уже запущен
+    else:
+        asyncio.run(main())  # Если event loop не запущен
