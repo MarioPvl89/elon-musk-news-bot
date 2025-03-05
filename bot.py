@@ -54,16 +54,16 @@ async def start_webhook():
 
 # Запуск бота через webhook
 async def main():
-    PORT = int(os.environ.get("PORT", 8443))
-    
-    await start_webhook()  # Устанавливаем webhook
-
-    # Запускаем webhook-сервер
     await app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
-        url_path=f"webhook/{TOKEN}"
+        webhook_url=f"{WEBHOOK_URL}{TOKEN}"
     )
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(main())
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        asyncio.run(main())
+    else:
+        asyncio.create_task(main())
