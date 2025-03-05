@@ -3,10 +3,10 @@ import logging
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 
-# Токен Telegram-бота (замени на свой)
+# Токен Telegram-бота
 TOKEN = "7924106666:AAGd-HK2cfXRkNmLtrXVrV1j80HuPpAfSAk"
 
-# API-ключ для NewsAPI (замени на свой)
+# API-ключ для NewsAPI
 API_KEY = "0d8117b87d1949f9808c47112650cfab"
 
 # Логирование
@@ -43,7 +43,7 @@ def main():
     app.add_handler(CommandHandler("news", news_command))
 
     print("Бот запущен...")
-    app.run_polling()
+    app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
     main()
