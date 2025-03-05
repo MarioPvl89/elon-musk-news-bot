@@ -3,10 +3,6 @@ import asyncio
 import os
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
-import nest_asyncio
-
-# Применяем патч для предотвращения ошибки "RuntimeError: This event loop is already running"
-nest_asyncio.apply()
 
 # Логирование
 logging.basicConfig(
@@ -51,10 +47,6 @@ async def main():
     except Exception as e:
         logger.error(f"❌ Ошибка при запуске бота: {e}", exc_info=True)
 
-# Запуск бота
+# Запуск бота (без nest_asyncio)
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    if loop.is_running():
-        asyncio.create_task(main())  # Если event loop уже запущен
-    else:
-        asyncio.run(main())  # Если event loop не запущен
+    asyncio.run(main())
