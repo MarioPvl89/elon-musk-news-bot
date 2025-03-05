@@ -40,7 +40,7 @@ async def news_command(update: Update, context: CallbackContext) -> None:
 # Запуск бота
 def main():
 
-PORT = int(os.environ.get("PORT", 8443))
+    PORT = int(os.environ.get("PORT", 8443))
 
 async def start_webhook():
     await app.bot.set_webhook(f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}/webhook/{TOKEN}")
