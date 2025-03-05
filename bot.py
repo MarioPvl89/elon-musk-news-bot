@@ -52,6 +52,8 @@ app.add_handler(CommandHandler("start", start))
 async def start_webhook():
     await app.bot.set_webhook(f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}/webhook/{TOKEN}")
 
+PORT = int(os.environ.get("PORT", 8443))  # Если PORT не задан, берём 8443 по умолчанию
+
 # Запуск бота через webhook
 async def main():
     await app.run_webhook(
