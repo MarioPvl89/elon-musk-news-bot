@@ -52,13 +52,13 @@ app.add_handler(CommandHandler("start", start))
 async def start_webhook():
     await app.bot.set_webhook(f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}/webhook/{TOKEN}")
 
-# Запуск бота
-def main():
+# Запуск бота через webhook
+async def main():
     PORT = int(os.environ.get("PORT", 8443))
-
-    await start_webhook()  # Устанавливаем webhook
     
-    # Запускаем webhook
+    await start_webhook()  # Устанавливаем webhook
+
+    # Запускаем webhook-сервер
     await app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
@@ -66,5 +66,4 @@ def main():
     )
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())  # Запускаем event loop
+    asyncio.run(main())  # Запускаем event loop
