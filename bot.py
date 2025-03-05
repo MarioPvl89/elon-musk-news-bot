@@ -1,3 +1,4 @@
+import os
 import requests
 import logging
 from telegram import Update
@@ -38,7 +39,6 @@ async def news_command(update: Update, context: CallbackContext) -> None:
 
 # Запуск бота
 def main():
-    import os
 
 PORT = int(os.environ.get("PORT", 8443))
 
