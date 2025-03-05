@@ -38,12 +38,18 @@ async def news_command(update: Update, context: CallbackContext) -> None:
 
 # Запуск бота
 def main():
-    app = Application.builder().token(TOKEN).build()
+    import os
 
-    app.add_handler(CommandHandler("news", news_command))
+PORT = int(os.environ.get("PORT", 8443))
 
-    print("Бот запущен...")
-    app.run_polling(drop_pending_updates=True)
+async def start_webhook():
+    await app.bot.set_webhook(f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}/webhook/{TOKEN}")
+
+app.run_webhook(
+    listen="0.0.0.0",
+    port=PORT,
+    url_path=f"webhook/{TOKEN}"
+)
 
 if __name__ == "__main__":
     main()
